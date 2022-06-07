@@ -1,0 +1,41 @@
+'''
+Author: Huramhex
+计算图片中不透明区域面积比
+请使用Photoshop删除非计算区域并保留透明像素
+将文件格式保存为PNG
+支持灰度与RGB格式图片
+'''
+
+import numpy as np
+from PIL import Image
+
+
+
+img_path = input('请在此处输入图片路径：')
+img = Image.open(img_path)
+img_np = np.asarray(img)
+
+
+if img_np.shape[2] == 2:
+    print('载入灰度图片')
+    print('总像素数量为：{}'.format(img_np[:, :, 1].size))
+
+    pixel_num = img_np[:, :, 1] > 0
+    print('不透明像素数量为：{}'.format(len(img_np[pixel_num])))
+
+    rate = len(img_np[pixel_num]) / img_np[:, :, 1].size * 100
+    print(str('不透明像素所占面积比为：%.2f' % rate) + '%')
+
+elif img_np.shape[2] == 4:
+
+    print('载入RGBA格式图片')
+    print('总像素数量为：{}'.format(img_np[:, :, 3].size))
+
+    pixel_num = img_np[:, :, 3] > 0
+    print('不透明像素数量为：{}'.format(len(img_np[pixel_num])))
+
+    rate = len(img_np[pixel_num]) / img_np[:, :, 3].size * 100
+    print(str('不透明像素所占面积比为：%.2f' % rate) + '%')
+
+else:
+    print('错误：未发现透明通道，删除非计算区域并将文件格式保存为 .png')
