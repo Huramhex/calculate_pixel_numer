@@ -7,6 +7,7 @@ Author: Huramhex
 '''
 import glob
 import os.path
+
 import numpy as np
 from PIL import Image
 
@@ -14,12 +15,16 @@ img_path = input('请在此处输入文件夹路径：')
 
 file_list = glob.glob(os.path.join(img_path, '*.png'))
 
+result = []
+
 for file in file_list:
-    print('---'*10)
+    print('---' * 10)
     print(file)
+    result.append(file)
     img = Image.open(file)
     img_np = np.asarray(img)
 
+    # 灰度图
     if img_np.shape[2] == 2:
         print('载入灰度图片')
         print('总像素为：{}'.format(img_np[:, :, 1].size))
@@ -27,9 +32,11 @@ for file in file_list:
         pixel_num = img_np[:, :, 1] > 0
         print('不透明像素为：{}'.format(len(img_np[pixel_num])))
 
-        rate = len(img_np[pixel_num]) / img_np[:, :, 1].size * 100
-        print(str('不透明像素所占面积比为：%.2f' % rate) + '%')
+        ratio = len(img_np[pixel_num]) / img_np[:, :, 1].size * 100
+        print(str('不透明像素所占面积比为：%.2f' % ratio) + '%')
+        result.append(ratio)
 
+    # RBG图
     elif img_np.shape[2] == 4:
 
         print('载入RGBA格式图片')
@@ -38,8 +45,15 @@ for file in file_list:
         pixel_num = img_np[:, :, 3] > 0
         print('不透明像素为：{}'.format(len(img_np[pixel_num])))
 
-        rate = len(img_np[pixel_num]) / img_np[:, :, 3].size * 100
-        print(str('不透明像素所占面积比为：%.2f' % rate) + '%')
+        ratio = len(img_np[pixel_num]) / img_np[:, :, 3].size * 100
+        print(str('不透明像素所占面积比为：%.2f' % ratio) + '%')
+        result.append(ratio)
 
     else:
         print('错误：未发现透明通道，删除非计算区域并将文件格式保存为 .png')
+        result.append('数据错误')
+
+# 保存到data_save.txt
+save_path = os.path.join(img_path, 'data_save.txt')
+result = np.asarray(result)
+np.savetxt(save_path, result, fmt='%s', delimiter=',')
